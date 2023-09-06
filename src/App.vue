@@ -1,5 +1,8 @@
 <script setup>
     import { reactive } from "vue";
+    import Header from "./components/Header.vue";
+    import Form from "./components/Form.vue";
+    import List from "./components/List.vue";
 
     const state = reactive({
         filter: "all",
@@ -33,7 +36,7 @@
 
         switch (filter) {
             case "pending":
-                return getPendingTasks();
+                return getPendingTasks().length > 0 ? getPendingTasks() : null;
             case "finished":
                 return getFinishedTasks();
             default:
@@ -57,66 +60,13 @@
 
 <template>
     <div class="container">
-        <header class="p-5 mb-4 mt-4 bg-light rounded-3">
-            <h1>Minhas tarefas</h1>
-            <p v-if="getPendingTasks().length > 0">
-                Você possui {{ getPendingTasks().length }} tarefas pendentes
-            </p>
-            <p v-else>Você não possui tarefas pendentes</p>
-        </header>
-        <form @submit.prevent="registerTask">
-            <div class="row">
-                <div class="col">
-                    <input
-                        :value="state.tempTask"
-                        @change="(e) => (state.tempTask = e.target.value)"
-                        required
-                        type="text"
-                        placeholder="Nova tarefa"
-                        class="form-control" />
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary">
-                        Adicionar
-                    </button>
-                </div>
-                <div class="col-md-2">
-                    <select @change="changeFilter" class="form-select">
-                        <option value="all">Todas</option>
-                        <option value="pending">Pendentes</option>
-                        <option value="finished">Finalizadas</option>
-                    </select>
-                </div>
-            </div>
-        </form>
-        <ul class="list-group mt-4">
-            <li class="list-group-item" v-for="task in getFilteredTasks()">
-                <input
-                    @change="(e) => (task.done = e.target.checked)"
-                    :checked="task.done"
-                    :id="task.title"
-                    type="checkbox"
-                    name=""
-                    id="" />
-                <label
-                    :class="{ done: task.done }"
-                    class="ms-3"
-                    :for="task.title">
-                    {{ task.title }}
-                </label>
-            </li>
-        </ul>
+        <Header :pending-tasks="getPendingTasks().length" />
+        <Form
+            :change-filter="changeFilter"
+            :temp-task="state.tempTask"
+            :edit-temp-task="(e) => (state.tempTask = e.target.value)"
+            :register-task="registerTask" />
+        <List :tasks="getFilteredTasks()" />
     </div>
 </template>
-
-<style scoped>
-    .done {
-        text-decoration: line-through;
-        color: #aaa;
-    }
-
-    select {
-        cursor: pointer;
-    }
-</style>
 
